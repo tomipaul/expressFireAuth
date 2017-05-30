@@ -6,7 +6,7 @@ const expressFireAuth = (firebaseApp) => {
   const key = new NodeRSA({ b: 1024 }, 'pkcs1-private-pem');
   const exported = key.exportKey('pkcs1-private-pem');
 
-  // Generate token
+  // Generate token using user id and key
   const generateToken = (user) => {
     const privateClaim = { uid: user.uid };
     const options = {
@@ -49,7 +49,9 @@ const expressFireAuth = (firebaseApp) => {
         next(err);
       });
     };
-    // Wrap up request after user sign up
+    /* Send response after user sign-up
+    when setCookies, set the Set-Cookie header and return a 200 status
+    else response is a json body */
     const response = (req, res) => {
       if (setCookies) {
         const date = new Date();
