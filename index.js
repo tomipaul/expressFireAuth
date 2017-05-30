@@ -19,14 +19,9 @@ const expressFireAuth = (firebaseApp) => {
     return token;
   };
 
-  // Create a new user in your express-firebase app
-  const signUp = ({
-    setCookies = false,
-    redirect = false,
-    path = '/home'
-  } = {}, ...middlewares) => {
-    // Check request method and payload
-    const validateRequest = (req, res, next) => {
+  // For every request, Check request method and payload
+  const validateRequest = () => {
+    return (req, res, next) => {
       if (req.method !== 'POST') {
         throw new Error('POST request method expected');
       } else if (!req.body.email || !req.body.password) {
@@ -35,6 +30,31 @@ const expressFireAuth = (firebaseApp) => {
         next();
       }
     };
+  };
+
+  /*
+  Send response after user is logged in
+  when setCookies, set the Set-Cookie header and return a 200 status
+  else response is a json body
+  */
+  const afterLogIn = (setCookies, redirect, path) => {
+    return (req, res) => {
+      if (setCookies) {
+        const date = new Date();
+        date.setDate(date.getDate() + 30);
+        res.cookie('token', req.token, { expires: date, httpOnly: true });
+        return (redirect) ? res.redirect(path) : res.sendStatus(200);
+      }
+      return res.json(req.token);
+    };
+  };
+
+  // Create a new user in your express-firebase app
+  const signUp = ({
+    setCookies = false,
+    redirect = false,
+    path = '/home'
+  } = {}, ...middlewares) => {
     // Create user
     const createUser = (req, res, next) => {
       const { email, password } = req.body;
@@ -49,23 +69,20 @@ const expressFireAuth = (firebaseApp) => {
         next(err);
       });
     };
-    /* Send response after user sign-up
-    when setCookies, set the Set-Cookie header and return a 200 status
-    else response is a json body */
-    const response = (req, res) => {
-      if (setCookies) {
-        const date = new Date();
-        date.setDate(date.getDate() + 30);
-        res.cookie('token', req.token, { expires: date, httpOnly: true });
-        return (redirect) ? res.redirect(path) : res.sendStatus(200);
-      }
-      return res.json(req.token);
-    };
-    return [validateRequest, createUser, ...middlewares, response];
+    // Return an array of middleware that handles request
+    const validate = validateRequest();
+    const response = afterLogIn(setCookies, redirect, path);
+    return [validate, createUser, ...middlewares, response];
+  };
+
+  // Log in an existing user
+  const logIn = () => {
+
   };
   // Return api
   return {
-    signUp
+    signUp,
+    logIn
   };
 };
 
