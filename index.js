@@ -5,6 +5,7 @@ const expressFireAuth = (firebaseApp) => {
   // Get PEM encoded private key for RSA
   const key = new NodeRSA({ b: 1024 }, 'pkcs1-private-pem');
   const exported = key.exportKey('pkcs1-private-pem');
+  const auth = firebaseApp.auth();
 
   // Generate token using user id and key
   const generateToken = (user) => {
@@ -58,7 +59,6 @@ const expressFireAuth = (firebaseApp) => {
     // Create user
     const createUser = (req, res, next) => {
       const { email, password } = req.body;
-      const auth = firebaseApp.auth();
       auth.createUserWithEmailAndPassword(email, password)
       .then((user) => {
         const token = generateToken(user);
@@ -76,9 +76,30 @@ const expressFireAuth = (firebaseApp) => {
   };
 
   // Log in an existing user
-  const logIn = () => {
-
+  const logIn = ({
+    setCookies = false,
+    redirect = false,
+    path = '/home'
+  } = {}, ...middlewares) => {
+    // Log in user
+    const logInUser = (req, res, next) => {
+      const { email, password } = req.body;
+      auth.signInWithEmailAndPassword(email, password)
+      .then((user) => {
+        const token = generateToken(user);
+        req.token = token;
+        next();
+      })
+      .catch((err) => {
+        next(err);
+      });
+    };
+    // Return an array of middleware that handles request
+    const validate = validateRequest();
+    const response = afterLogIn(setCookies, redirect, path);
+    return [validate, logInUser, ...middlewares, response];
   };
+
   // Return api
   return {
     signUp,
