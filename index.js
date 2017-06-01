@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken';
 import NodeRSA from 'node-rsa';
+import bodyParser from 'body-parser';
 
 const expressFireAuth = (firebaseApp) => {
   // Get PEM encoded private key for RSA
@@ -18,6 +19,14 @@ const expressFireAuth = (firebaseApp) => {
     };
     const token = jwt.sign(privateClaim, exported, options);
     return token;
+  };
+
+  // Parse request body if request body has not been parsed
+  const parseRequestBody = () => {
+    return [
+      bodyParser.json(),
+      bodyParser.urlencoded({ extended: 'true' })
+    ];
   };
 
   // For every request, Check request method and payload
@@ -70,9 +79,13 @@ const expressFireAuth = (firebaseApp) => {
       });
     };
     // Return an array of middleware that handles request
-    const validate = validateRequest();
-    const response = afterLogIn(setCookies, redirect, path);
-    return [validate, createUser, ...middlewares, response];
+    return [
+      ...parseRequestBody(),
+      validateRequest(),
+      createUser,
+      ...middlewares,
+      afterLogIn(setCookies, redirect, path)
+    ];
   };
 
   // Log in an existing user
@@ -95,9 +108,13 @@ const expressFireAuth = (firebaseApp) => {
       });
     };
     // Return an array of middleware that handles request
-    const validate = validateRequest();
-    const response = afterLogIn(setCookies, redirect, path);
-    return [validate, logInUser, ...middlewares, response];
+    return [
+      ...parseRequestBody(),
+      validateRequest(),
+      logInUser,
+      ...middlewares,
+      afterLogIn(setCookies, redirect, path)
+    ];
   };
 
   // Return api
