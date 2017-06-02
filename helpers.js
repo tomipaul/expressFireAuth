@@ -39,7 +39,9 @@ const generateToken = (user, rsaKey) => {
  * Parse the body of requests and populate req.body with payload
  * See {@link https://expressjs.com/en/4x/api.html#req.body ExpressJS}
  * @function parseRequestBody
- * @returns {Array} - An array of two body-parser express middlewares
+ * @returns {Array} - An array of two express middleware functions
+ *  from body-parser.
+ * See {@link https://www.npmjs.com/package/body-parser body-parser}
  */
 const parseRequestBody = () => {
   return [
@@ -48,6 +50,14 @@ const parseRequestBody = () => {
   ];
 };
 
+/**
+ * Parse the request cookies header and populate req.cookies
+ * See {@link https://expressjs.com/en/4x/api.html#req.cookies ExpressJS}
+ * @function parseCookie
+ * @returns {Function} - An express middleware function
+ *  from cookie-parser.
+ * See {@link https://www.npmjs.com/package/cookie-parser cookie-parser}
+ */
 const parseCookie = () => {
   return cookieParser();
 };
