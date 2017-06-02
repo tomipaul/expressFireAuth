@@ -1,6 +1,7 @@
 import NodeRSA from 'node-rsa';
 import jwt from 'jsonwebtoken';
 import bodyParser from 'body-parser';
+import cookieParser from 'cookie-parser';
 
 /**
  * Get PEM encoded RSA private key
@@ -47,7 +48,12 @@ const parseRequestBody = () => {
   ];
 };
 
+const parseCookie = () => {
+  return cookieParser();
+};
+
 export {
+  parseCookie,
   generateToken,
   parseRequestBody,
   generateRSAPrivateKey,
