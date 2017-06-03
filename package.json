@@ -26,6 +26,7 @@
   "homepage": "https://github.com/tomipaul/expressFireAuth#readme",
   "dependencies": {
     "body-parser": "^1.17.2",
+    "dotenv": "^4.0.0",
     "jsonwebtoken": "^7.4.1",
     "node-rsa": "^0.4.2"
   },
