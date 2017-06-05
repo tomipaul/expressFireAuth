@@ -3,8 +3,8 @@ import { generateRSAKeyPair } from '../helpers';
 
 const keyDirectory = `${__dirname}/../key`;
 
-if (!process.env.PRIVATE_KEY &&
- !fs.existsSync(`${keyDirectory}/rsapair.pem`)) {
+if (!process.env.PRIVATE_KEY && !process.env.PUBLIC_KEY
+  && !fs.existsSync(`${keyDirectory}/rsapair.pem`)) {
   const rsaKeyPair = generateRSAKeyPair();
   const publicKey = JSON.stringify(rsaKeyPair.publicKey);
   const privateKey = JSON.stringify(rsaKeyPair.privateKey);
