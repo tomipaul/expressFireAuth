@@ -1,7 +1,6 @@
 import {
   generateToken,
-  parseRequestBody,
-  generateRSAPrivateKey
+  parseRequestBody
  } from './helpers';
 
 /**
@@ -77,7 +76,7 @@ const emailPasswordAuth = function emailPasswordAuth(auth) {
       const { email, password } = req.body;
       auth.createUserWithEmailAndPassword(email, password)
       .then((user) => {
-        const rsaKey = generateRSAPrivateKey();
+        const rsaKey = process.env.PRIVATE_KEY;
         const token = generateToken(user, rsaKey);
         req.user = user;
         req.token = token;
@@ -116,7 +115,7 @@ const emailPasswordAuth = function emailPasswordAuth(auth) {
       const { email, password } = req.body;
       auth.signInWithEmailAndPassword(email, password)
       .then((user) => {
-        const rsaKey = generateRSAPrivateKey();
+        const rsaKey = process.env.PRIVATE_KEY;
         const token = generateToken(user, rsaKey);
         req.user = user;
         req.token = token;
