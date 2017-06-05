@@ -3,15 +3,16 @@ import jwt from 'jsonwebtoken';
 import bodyParser from 'body-parser';
 
 /**
- * Get PEM encoded RSA private key
+ * Generate PEM encoded RSA key pair
  * function generateToken() uses key for token creation
- * @function generateRSAPrivateKey
- * @returns {String} PEM-encoded RSA private key
+ * @function generateRSAKeyPair
+ * @returns {Object.<string>} PEM-encoded RSA public and private keys
  */
-const generateRSAPrivateKey = () => {
-  const key = new NodeRSA({ b: 1024 }, 'pkcs1-private-pem');
-  const exported = key.exportKey('pkcs1-private-pem');
-  return exported;
+const generateRSAKeyPair = () => {
+  const key = new NodeRSA({ b: 2048 });
+  const publicKey = key.exportKey('pkcs1-public-pem');
+  const privateKey = key.exportKey('pkcs1-private-pem');
+  return { publicKey, privateKey };
 };
 
 /**
@@ -50,5 +51,5 @@ const parseRequestBody = () => {
 export {
   generateToken,
   parseRequestBody,
-  generateRSAPrivateKey,
+  generateRSAKeyPair,
 };
