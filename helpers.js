@@ -21,7 +21,7 @@ const generateRSAKeyPair = () => {
  * @function generateToken
  * @param {Object} user - User object returned from firebase authentication
  * @param {String} rsaKey - PEM encoded RSA private key
- * @returns {String} - A json web token
+ * @returns {String} A json web token
  */
 const generateToken = (user, rsaKey) => {
   const privateClaim = { uid: user.uid };
@@ -37,9 +37,10 @@ const generateToken = (user, rsaKey) => {
 
 /**
  * Verify token's signature and get decoded payload
+ * @function verifyTokenGetPayload
  * @param {String} token - JSON web token
  * @param {String} rsaKey - PEM encoded RSA public key
- * @returns {Promise.<Object>} - Decoded payload if
+ * @returns {Promise.<object>} Decoded payload if
  * promise is fulfilled or an error if rejected.
  * Promise is fulfilled if token is valid.
  */
@@ -60,8 +61,8 @@ const verifyTokenGetPayload = (token, rsaKey) => {
  * Parse the body of requests and populate req.body with payload
  * See {@link https://expressjs.com/en/4x/api.html#req.body ExpressJS}
  * @function parseRequestBody
- * @returns {Array} - An array of two express middleware functions
- *  from body-parser.
+ * @returns {Array.<function>} An array of two express middleware functions
+ * from body-parser.
  * See {@link https://www.npmjs.com/package/body-parser body-parser}
  */
 const parseRequestBody = () => {
@@ -75,8 +76,8 @@ const parseRequestBody = () => {
  * Parse the request cookies header and populate req.cookies
  * See {@link https://expressjs.com/en/4x/api.html#req.cookies ExpressJS}
  * @function parseCookie
- * @returns {Function} - An express middleware function
- *  from cookie-parser.
+ * @returns {Function} An express middleware function
+ * from cookie-parser.
  * See {@link https://www.npmjs.com/package/cookie-parser cookie-parser}
  */
 const parseCookie = () => {
