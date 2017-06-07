@@ -7,15 +7,15 @@ import {
  * Handle Email-Paswword Authentication
  * @function emailPasswordAuth
  * @param {Object} auth - Auth service for the firebase app - firebase.auth()
- * @returns {Object.<function>} - An object that contains
- *  functions that implement signup and login
+ * @returns {Object.<function>} An object that contains
+ * functions that implement signup and login
  */
 const emailPasswordAuth = function emailPasswordAuth(auth) {
   /**
    * Check if authentication request is valid
    * @function validateRequest
-   * @returns {function} - an express middleware that checks
-   *  request method and payload for every request
+   * @returns {Function} An express middleware that checks
+   * request method and payload for every authentication request
    */
   const validateRequest = () => {
     return (req, res, next) => {
@@ -36,13 +36,13 @@ const emailPasswordAuth = function emailPasswordAuth(auth) {
    * @param {Boolean} redirect - Send an http redirect in response to request
    * @param {String} path - Path to redirect to if redirect is true.
    * If setCookies is true and redirect is false,
-   *  send a cookie that contains token and return a 200 status.
+   * send a cookie that contains token and return a 200 status.
    * If setCookies is true and redirect is true,
-   *  send a cookie that contains token and
-   *  redirect to path which defaults to '/'
+   * send a cookie that contains token and
+   * redirect to path which defaults to '/'
    * Else if setCookies is false, return a json response of token
-   * @returns {function} - A middleware that sends response to client
-   *  as determined by setCookies and redirect
+   * @returns {Function} A middleware that sends response to client
+   * as determined by setCookies and redirect
    */
   const afterLogIn = (setCookie, redirect, path) => {
     return (req, res) => {
@@ -59,13 +59,14 @@ const emailPasswordAuth = function emailPasswordAuth(auth) {
   /**
    * Create a new user in your express-firebase app
    * @function createUserWithEmailAndPassword
-   * @param {Object.Boolean} setCookie - Send a cookie in response to request
-   * @param {Object.Boolean} redirect -
-   *  Send an http redirect in response to request
-   * @param {Object.String} path - Path to redirect to if redirect is true.
+   * @param {Object.boolean} setCookie - Send a cookie in response to request
+   * @param {Object.boolean} redirect -
+   * Send an http redirect in response to request
+   * @param {Object.string} path - Path to redirect to if redirect is true.
    * @param {Function} middlewares - Custom middlewares if you desire to
-   *  implement additional logic before response is sent.
-   * @returns {Array} An array of middleware functions that handle request
+   * implement additional logic before response is sent.
+   * @returns {Array.<function>}
+   * An array of middleware functions that handle request
    */
   const createUserWithEmailAndPassword = ({
     setCookie = false,
@@ -98,13 +99,14 @@ const emailPasswordAuth = function emailPasswordAuth(auth) {
   /**
    * Log in an existing user into your express-firebase app
    * @function authenticateUserWithEmailAndPassword
-   * @param {Object.Boolean} setCookie - Send a cookie in response to request
-   * @param {Object.Boolean} redirect -
-   *  Send an http redirect in response to request
-   * @param {Object.String} path - Path to redirect to if redirect is true.
+   * @param {Object.boolean} setCookie - Send a cookie in response to request
+   * @param {Object.boolean} redirect -
+   * Send an http redirect in response to request
+   * @param {Object.string} path - Path to redirect to if redirect is true.
    * @param {Function} middlewares - Custom middlewares if you desire to
-   *  implement additional logic before response is sent.
-   * @returns {Array} An array of middleware functions that handle request
+   * implement additional logic before response is sent.
+   * @returns {Array.<function>}
+   * An array of middleware functions that handle request
    */
   const logInUserWithEmailAndPassword = ({
     setCookies = false,
