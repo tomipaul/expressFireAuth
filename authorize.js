@@ -8,22 +8,16 @@ import {
  * Verify user identity and authorize user to assess requested route
  * or an alternate appropriate route.
  * @function authorizeUser
- * @param {Object.boolean} redirectOnFailure - Redirect if user
- * authorization fails.
- * @param {Object.boolean} redirectOnSuccess - Redirect if user
- * authorization succeeds
- * @param {Object.string} successUrl - url to redirect to
- * if redirectOnSuccess
- * @param {Object.string} failureUrl - url to redirect to
- * if redirectOnFailure
+ * @param {Object.boolean|string} redirectOnSuccess - URL to redirect to
+ * if authorization succeeds else false
+ * @param {Object.boolean|string} redirectOnFailure - URL to redirect to
+ * if authorization fails else false
  * @returns {Array.<function>}
  * An array of middleware functions that handle request
  */
 const authorizeUser = ({
   redirectOnFailure = false,
-  redirectOnSuccess = false,
-  successUrl = '/',
-  failureUrl = '/'
+  redirectOnSuccess = false
 } = {}) => {
   /**
    * Get Token sent in client request
@@ -36,7 +30,7 @@ const authorizeUser = ({
       const token = req.body.token || req.query.token
       || req.get('Authorization') || req.cookies.token;
       if (!token) {
-        return (redirectOnFailure) ? res.redirect(failureUrl)
+        return (redirectOnFailure) ? res.redirect(redirectOnFailure)
         : res.status(401).send('No Access token provided!');
       }
       const matched = /^Bearer (\S+)$/.exec(token);
@@ -58,11 +52,11 @@ const authorizeUser = ({
       verifyTokenGetPayload(req.token, rsaKey)
       .then((decodedPayload) => {
         req.userId = decodedPayload.uid;
-        return (redirectOnSuccess) ? res.redirect(successUrl)
+        return (redirectOnSuccess) ? res.redirect(redirectOnSuccess)
         : next();
       })
       .catch((err) => {
-        return (redirectOnFailure) ? res.redirect(failureUrl)
+        return (redirectOnFailure) ? res.redirect(redirectOnFailure)
         : res.status(401).send(err.message);
       });
     };
