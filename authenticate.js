@@ -63,7 +63,7 @@ const emailPasswordAuth = function emailPasswordAuth(auth) {
    * Create a new user or login an existing user
    * @param {Object.boolean} setCookie - Send a cookie in response to request
    * @param {Object.boolean} redirect -
-   *  Send an http redirect in response to request
+   * Send an http redirect in response to request
    * @param {Object.string} path - Path to redirect to if redirect is true.
    * @param {Function} middlewares - Custom middlewares if you desire to
    * implement additional logic before response is sent.
