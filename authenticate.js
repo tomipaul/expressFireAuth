@@ -8,7 +8,7 @@ import {
  * @function emailPasswordAuth
  * @param {Object} auth - Auth service for the firebase app - firebase.auth()
  * @returns {Object.<function>} An object that contains
- * functions that implement signup and login
+ * functions that implement authentication
  */
 const emailPasswordAuth = function emailPasswordAuth(auth) {
   /**
@@ -20,9 +20,9 @@ const emailPasswordAuth = function emailPasswordAuth(auth) {
   const validateRequest = () => {
     return (req, res, next) => {
       if (req.method !== 'POST') {
-        throw new Error('POST request method expected');
+        res.status(400).json('POST request method expected');
       } else if (!req.body.email || !req.body.password) {
-        throw new Error('non-empty email and password expected');
+        res.status(400).json('non-empty email and password expected');
       } else {
         next();
       }
@@ -31,26 +31,25 @@ const emailPasswordAuth = function emailPasswordAuth(auth) {
 
   /**
    * Send response after user authentication
-   * @function afterLogin
+   * @function userAuthenticationResponse
    * @param {Boolean} setCookie - Send a cookie in response to request
-   * @param {Boolean} redirect - Send an http redirect in response to request
-   * @param {String} path - Path to redirect to if redirect is true.
-   * @returns {Function} A middleware that sends response to client
-   * as determined by setCookies and redirect.
+   * @param {Boolean|String} redirect -
+   * Send an http redirect in response to request; false Or Path/URL
+   * @returns {Function} A middleware that sends authentication response
    * If setCookies is true and redirect is false,
    * send a cookie that contains token and return a 200 status.
-   * If setCookies is true and redirect is true,
+   * If setCookies is true and redirect is set,
    * send a cookie that contains token and
-   * redirect to path which defaults to '/'
+   * redirect to path/url specified by redirect
    * Else if setCookies is false, return a json response of token
    */
-  const userAuthenticationResponse = (setCookie, redirect, path) => {
+  const userAuthenticationResponse = (setCookie, redirect) => {
     return (req, res) => {
       if (setCookie) {
         const date = new Date();
         date.setDate(date.getDate() + 30);
         res.cookie('token', req.token, { expires: date, httpOnly: true });
-        return (redirect) ? res.redirect(path) : res.sendStatus(200);
+        return (redirect) ? res.redirect(redirect) : res.sendStatus(200);
       }
       return res.json(req.token);
     };
@@ -62,9 +61,8 @@ const emailPasswordAuth = function emailPasswordAuth(auth) {
    * @param {Object.boolean} newUser -
    * Create a new user or login an existing user
    * @param {Object.boolean} setCookie - Send a cookie in response to request
-   * @param {Object.boolean} redirect -
-   * Send an http redirect in response to request
-   * @param {Object.string} path - Path to redirect to if redirect is true.
+   * @param {Object.boolean|string} redirect -
+   * Send an http redirect in response to request; false Or path/URL
    * @param {Function} middlewares - Custom middlewares if you desire to
    * implement additional logic before response is sent.
    * @returns {Array.<function>}
@@ -73,8 +71,7 @@ const emailPasswordAuth = function emailPasswordAuth(auth) {
   const authenticateUserWithEmailAndPassword = ({
     newUser = false,
     setCookies = false,
-    redirect = false,
-    path = '/'
+    redirect = false
   } = {}, ...middlewares) => {
     const authenticateUser = (req, res, next) => {
       const { email, password } = req.body;
@@ -89,7 +86,7 @@ const emailPasswordAuth = function emailPasswordAuth(auth) {
         next();
       })
       .catch((err) => {
-        next(err);
+        res.status(401).json(err);
       });
     };
     return [
@@ -97,7 +94,7 @@ const emailPasswordAuth = function emailPasswordAuth(auth) {
       validateRequest(),
       authenticateUser,
       ...middlewares,
-      userAuthenticationResponse(setCookies, redirect, path)
+      userAuthenticationResponse(setCookies, redirect)
     ];
   };
 
