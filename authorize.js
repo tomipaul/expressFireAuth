@@ -72,8 +72,9 @@ const authorizeUser = ({
   /**
    * Complete client authorization process
    * @function authorizationResponse
-   * @returns {Function} An express middleware that sends response
-   * to client Or passes request to the next middleware function.
+   * @returns {Function} An express middleware that ends the
+   * authorization process by sending response to client
+   * Or passing request to the next middleware function.
    */
   const authorizationResponse = () => {
     return (req, res, next) => {
