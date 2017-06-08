@@ -8,6 +8,10 @@ import {
  * Verify user identity and authorize user to assess requested route
  * or an alternate appropriate route.
  * @function authorizeUser
+ * @param {Object.boolean} invokeNextOnFailure - Pass request to next
+ * middleware function if authorization fails
+ * @param {Object.boolean} invokeNextOnSuccess - Pass request to next
+ * middleware function if authorization succeeds
  * @param {Object.boolean|string} redirectOnSuccess - URL to redirect to
  * if authorization succeeds else false
  * @param {Object.boolean|string} redirectOnFailure - URL to redirect to
@@ -16,23 +20,22 @@ import {
  * An array of middleware functions that handle request
  */
 const authorizeUser = ({
+  invokeNextOnFailure = false,
+  invokeNextOnSuccess = false,
   redirectOnFailure = false,
   redirectOnSuccess = false
 } = {}) => {
   /**
    * Get Token sent in client request
-   * @function getToken
+   * @function getClientAuthToken
    * @returns {Function} An express middleware that gets
-   * authorization token from request body, query, header or cookies.
+   * authorization token from request body, query, header or cookies
+   * and passes request to next middleware function.
    */
-  const getToken = () => {
+  const getClientAuthToken = () => {
     return (req, res, next) => {
-      const token = req.body.token || req.query.token
-      || req.get('Authorization') || req.cookies.token;
-      if (!token) {
-        return (redirectOnFailure) ? res.redirect(redirectOnFailure)
-        : res.status(401).send('No Access token provided!');
-      }
+      const token = req.get('Authorization') || req.body.token
+      || req.cookies.token || req.query.token;
       const matched = /^Bearer (\S+)$/.exec(token);
       req.token = (matched) ? matched[1] : token;
       next();
@@ -40,33 +43,64 @@ const authorizeUser = ({
   };
 
   /**
-   * Verify client identity and send response
-   * @function verifyUserIdentity
+   * Verify client token and get decoded payload
+   * @function verifyClientAuthToken
    * @returns {Function} An express middleware that verifies the
-   * authorization token sent by client and then authorize client
-   * to assess requested route or an alternate appropriate route.
+   * authorization token sent by client, attaches error or decoded
+   * payload to the request and passes request to the next
+   * middleware function.
    */
-  const verifyUserIdentity = () => {
+  const verifyClientAuthToken = () => {
     return (req, res, next) => {
-      const rsaKey = process.env.PUBLIC_KEY;
-      verifyTokenGetPayload(req.token, rsaKey)
-      .then((decodedPayload) => {
-        req.userId = decodedPayload.uid;
-        return (redirectOnSuccess) ? res.redirect(redirectOnSuccess)
-        : next();
-      })
-      .catch((err) => {
-        return (redirectOnFailure) ? res.redirect(redirectOnFailure)
-        : res.status(401).send(err.message);
-      });
+      if (req.token) {
+        const rsaKey = process.env.PUBLIC_KEY;
+        verifyTokenGetPayload(req.token, rsaKey)
+        .then((decodedPayload) => {
+          req.decodedPayload = decodedPayload;
+          next();
+        })
+        .catch((err) => {
+          req.err = err;
+          next();
+        });
+      } else {
+        next();
+      }
+    };
+  };
+
+  /**
+   * Complete client authorization process
+   * @function authorizationResponse
+   * @returns {Function} An express middleware that sends response
+   * to client Or passes request to the next middleware function.
+   */
+  const authorizationResponse = () => {
+    return (req, res, next) => {
+      if (req.err || !req.token) {
+        if (redirectOnFailure) {
+          return res.redirect(redirectOnFailure);
+        }
+        const message = (req.err) ? req.err.message
+        : 'No Access token provided!';
+        return (invokeNextOnFailure) ? next()
+        : res.status(401).json(message);
+      } else if (req.decodedPayload) {
+        if (redirectOnSuccess) {
+          return res.redirect(redirectOnSuccess);
+        }
+        return (invokeNextOnSuccess) ? next()
+        : res.status(200).json(req.decodedPayload);
+      }
     };
   };
 
   return [
     parseCookie(),
     ...parseRequestBody(),
-    getToken(),
-    verifyUserIdentity()
+    getClientAuthToken(),
+    verifyClientAuthToken(),
+    authorizationResponse()
   ];
 };
 
