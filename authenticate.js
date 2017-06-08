@@ -70,7 +70,7 @@ const emailPasswordAuth = function emailPasswordAuth(auth) {
    */
   const authenticateUserWithEmailAndPassword = ({
     newUser = false,
-    setCookies = false,
+    setCookie = false,
     redirect = false
   } = {}, ...middlewares) => {
     const authenticateUser = (req, res, next) => {
@@ -94,7 +94,7 @@ const emailPasswordAuth = function emailPasswordAuth(auth) {
       validateRequest(),
       authenticateUser,
       ...middlewares,
-      userAuthenticationResponse(setCookies, redirect)
+      userAuthenticationResponse(setCookie, redirect)
     ];
   };
 
