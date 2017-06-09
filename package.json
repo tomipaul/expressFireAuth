@@ -1,0 +1,39 @@
+{
+  "name": "expressfireauth",
+  "version": "1.0.0",
+  "description": "Manage Firebase User Authentication and Authorization from the express backend in a web application.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tomipaul/expressFireAuth.git"
+  },
+  "keywords": [
+    "express",
+    "firebase",
+    "authentication",
+    "authorization",
+    "jwt",
+    "tokens"
+  ],
+  "author": "Tomi Akande",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/tomipaul/expressFireAuth/issues"
+  },
+  "homepage": "https://github.com/tomipaul/expressFireAuth#readme",
+  "dependencies": {
+    "body-parser": "^1.17.2",
+    "dotenv": "^4.0.0",
+    "cookie-parser": "^1.4.3",
+    "jsonwebtoken": "^7.4.1",
+    "node-rsa": "^0.4.2"
+  },
+  "devDependencies": {
+    "eslint": "^3.19.0",
+    "eslint-config-airbnb-base": "^11.2.0",
+    "eslint-plugin-import": "^2.3.0"
+  }
+}
